@@ -1,41 +1,44 @@
 package com.collections.gateway.services;
 
-import com.collections.delivery.impl.CollectionsControllerImpl;
-import com.collections.gateway.dto.CollectionDTO;
-import com.collections.gateway.dto.CollectionsResponseDTO;
+import com.collections.gateway.dto.CollectionDto;
+import com.collections.gateway.dto.CollectionsResponseDto;
 import com.collections.shared.converter.GenericConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+
 
 @Component
-public class CollectionConverter implements GenericConverter<String, CollectionsResponseDTO> {
+public class CollectionConverter implements GenericConverter<String, CollectionsResponseDto> {
 
-    ObjectMapper mapper = new ObjectMapper();
+  // Clase que extiende del convertidor genérico, sobreescribe el método apply y convierte el DTO
 
-    private static final Logger logger = LoggerFactory.getLogger(CollectionConverter.class);
+  private final ObjectMapper mapper = new ObjectMapper();
 
-    private CollectionsResponseDTO getCollections (List<CollectionDTO> collections) {
-        return CollectionsResponseDTO.builder()
-                .collections(collections)
-                .build();
+  private static final Logger logger = LoggerFactory.getLogger(CollectionConverter.class);
+
+  private CollectionsResponseDto getCollections(List<CollectionDto> collections) {
+    return CollectionsResponseDto.builder()
+            .data(collections)
+            .build();
+  }
+
+  @Override
+  public CollectionsResponseDto apply(String body) {
+    List<CollectionDto> collectionsDto = null;
+    try {
+      logger.info("Mapping Unsplash response to CollectionsDTO");
+      collectionsDto = mapper.readValue(body, new TypeReference<>() {
+      });
+    } catch (JsonProcessingException e) {
+      logger.error(e.getMessage());
+      throw new IllegalStateException();
     }
-
-    @Override
-    public CollectionsResponseDTO apply(String body) {
-        List<CollectionDTO> collectionsDTO = null;
-        try {
-            logger.info("Mapping Unsplash response to CollectionsDTO");
-            collectionsDTO = mapper.readValue(body, new TypeReference<>() {});
-        } catch (JsonProcessingException e) {
-            logger.error(e.getMessage());
-            throw new IllegalStateException();
-        }
-        return getCollections(collectionsDTO);
-    }
+    return getCollections(collectionsDto);
+  }
 }

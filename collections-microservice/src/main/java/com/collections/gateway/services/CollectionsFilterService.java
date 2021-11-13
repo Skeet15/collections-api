@@ -1,9 +1,9 @@
 package com.collections.gateway.services;
 
-import com.collections.gateway.dto.CollectionsResponseDTO;
+import com.collections.gateway.dto.CollectionsResponseDto;
 
 
 public interface CollectionsFilterService {
 
-    CollectionsResponseDTO filter(CollectionsResponseDTO collections, String filter);
+  CollectionsResponseDto filter(CollectionsResponseDto collections, String filter);
 }
