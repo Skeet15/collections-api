@@ -1,5 +1,6 @@
 package com.collections.gateway.services.httpclient.impl;
 
+import com.collections.configuration.UnsplashConfiguration;
 import com.collections.gateway.services.httpclient.CollectionsHttpClient;
 import com.collections.shared.exceptions.UnsplashUnauthorizedUserException;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -16,27 +18,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+@AllArgsConstructor
 @Service
 public class CollectionsHttpClientImpl implements CollectionsHttpClient {
 
-    private CloseableHttpClient httpClient;
-
     private static final Logger logger = LoggerFactory.getLogger(CollectionsHttpClientImpl.class);
+
+    private final UnsplashConfiguration unsplashConfiguration;
 
     @Override
     @SneakyThrows
     public String get(String uri) {
-        String bodyResponse = "";
         logger.info("Performing request. URI: {}", uri);
-        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
-            HttpGet httpGet = new HttpGet(uri);
+        HttpGet httpGet = createHttpGetRequest(uri);
+        return executeGet(httpGet);
+    }
 
+    @Override
+    public String post(String uri) {
+        HttpPost httpPost = createHttpPostRequest(uri);
+        return executePost(httpPost);
+    }
+
+    private HttpPost createHttpPostRequest(String uri) {
+        return new HttpPost(uri);
+    }
+
+    @SneakyThrows
+    private String executeGet(HttpGet httpGet) {
+        String bodyResponse = "";
+        httpGet.setHeader("Authorization", "Bearer " + unsplashConfiguration.getAccessToken());
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             try (CloseableHttpResponse closeableHttpResponse = httpclient.execute(httpGet)) {
                 bodyResponse = handleResponse(closeableHttpResponse);
                 logger.info("Success, building filtering response");
             }
         }
         return bodyResponse;
+    }
+
+    @SneakyThrows
+    private String executePost(HttpPost httpPost) {
+        String bodyResponse = "";
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            try (CloseableHttpResponse closeableHttpResponse = httpclient.execute(httpPost)) {
+                bodyResponse = handleResponse(closeableHttpResponse);
+                logger.info("Success, building response");
+            }
+        }
+        return bodyResponse;
+    }
+
+
+
+    private HttpGet createHttpGetRequest(String uri) {
+        return new HttpGet(uri);
     }
 
     @SneakyThrows

@@ -1,9 +1,9 @@
-package com.collections.gateway.services.impl;
+package com.collections.gateway.services;
 
 import com.collections.delivery.impl.CollectionsControllerImpl;
 import com.collections.gateway.dto.CollectionDTO;
 import com.collections.gateway.dto.CollectionsResponseDTO;
-import com.collections.gateway.services.CollectionsConverter;
+import com.collections.shared.converter.GenericConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class CollectionConverterImpl implements CollectionsConverter {
+public class CollectionConverter implements GenericConverter<String, CollectionsResponseDTO> {
 
     ObjectMapper mapper = new ObjectMapper();
 
-    private static final Logger logger = LoggerFactory.getLogger(CollectionsControllerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CollectionConverter.class);
 
     private CollectionsResponseDTO getCollections (List<CollectionDTO> collections) {
         return CollectionsResponseDTO.builder()
@@ -27,7 +27,7 @@ public class CollectionConverterImpl implements CollectionsConverter {
     }
 
     @Override
-    public CollectionsResponseDTO toCollectionsResponseDto(String body) {
+    public CollectionsResponseDTO apply(String body) {
         List<CollectionDTO> collectionsDTO = null;
         try {
             logger.info("Mapping Unsplash response to CollectionsDTO");

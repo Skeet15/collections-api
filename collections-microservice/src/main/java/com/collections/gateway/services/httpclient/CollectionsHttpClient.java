@@ -6,4 +6,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface CollectionsHttpClient {
     String get(String uri);
+    String post(String uri);
 }

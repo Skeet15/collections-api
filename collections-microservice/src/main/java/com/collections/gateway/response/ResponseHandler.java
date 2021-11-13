@@ -1,6 +1,5 @@
 package com.collections.gateway.response;
 
-import com.collections.delivery.impl.CollectionsControllerImpl;
 import com.collections.gateway.dto.CollectionsResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class ResponseHandler {
 
 
     public static ResponseEntity<Object> generateResponse(String message, HttpStatus status) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put("message", message);
         map.put("status", status);
         map.put("statusCode", status.value());

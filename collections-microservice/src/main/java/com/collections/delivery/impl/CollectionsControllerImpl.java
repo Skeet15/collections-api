@@ -2,8 +2,9 @@ package com.collections.delivery.impl;
 
 import com.collections.delivery.CollectionsController;
 import com.collections.gateway.response.ResponseHandler;
-import com.collections.gateway.services.CollectionsConverter;
+import com.collections.gateway.services.AccessTokenConverter;
 import com.collections.gateway.services.CollectionsFilterService;
+import com.collections.gateway.services.CollectionConverter;
 import com.collections.gateway.services.unsplash.UnsplashService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,7 +26,6 @@ public class CollectionsControllerImpl implements CollectionsController {
 
     private final UnsplashService unsplashService;
 
-    private final CollectionsConverter collectionsConverter;
 
     private final CollectionsFilterService collectionsFilterService;
 
@@ -34,20 +34,14 @@ public class CollectionsControllerImpl implements CollectionsController {
     public ResponseEntity<Object> getAllCollectionsByFilter(@RequestParam(required = false) String filter) {
         logger.info("Get collections by filter {}", filter);
         return ResponseHandler.generateResponse("Success", collectionsFilterService
-                .filter(collectionsConverter.toCollectionsResponseDto(unsplashService.getCollections()), filter),
+                .filter(unsplashService.getCollections(), filter),
                 HttpStatus.OK);
     }
 
     @Override
-    @GetMapping
-    public ResponseEntity<Object> getAllCollectionsByFilter(@RequestParam(required = false) String id,
-                                                                         @RequestParam(required = false) String title,
-                                                                         @RequestParam(required = false) String description,
-                                                                         @RequestParam(required = false) String cover_photo_id) {
-        logger.info("Get collections by id {}, title {}, description {}, cover_photo_id {}", id, title, description, cover_photo_id);
-        return ResponseHandler.generateResponse("Success", collectionsFilterService
-                .filter(collectionsConverter.toCollectionsResponseDto(unsplashService.getCollections()), id, title, description, cover_photo_id)
-                , HttpStatus.OK);
+    @GetMapping("callback")
+    public ResponseEntity<Object> accessTokenCallback(@RequestParam String code) {
+        return new ResponseEntity<>(unsplashService.getAccessToken(code), HttpStatus.OK);
     }
 
 }
