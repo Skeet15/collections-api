@@ -8,27 +8,26 @@ En el enunciado de la prueba se pedia implementar la siguiente llamada:
 
 Parámetros:
 
-> filter: Opcional. Ejemplo: id 1
+> filter: Opcional. Ejemplo: 1
 
-Dado que existe un solo parámetro pero se pide filtrar por 4 campos, el parametro filter contiene el campo a filtrar y el valor por el que se filtra separado por un espacio.
+#### Autenticacion
 
-Esta llamada resulta poco útil, por lo tanto se ha implementado una segunda llamada intentando seguir las buenas prácticas:
+Dado que se pide obtener un token de acceso previamente, es necesario realizar el flujo OAuth para realizar las llamadas autenticadas
 
-> GET /v1/collections
+Para ello, es necesario hacer login accediendo al siguiente path:
 
-Parámetros:
-> id: Opcional Ejemplo: 1
-> title: Opcional Ejemplo: título
-> description: Opcional Ejemplo: descripcion
-> cover_photo_id: Opcional Ejemplo: id foto
+> http://localhost:8080/login
 
----
+Una vez hecho login, la API devolverá un JSON informando que el usuario se encuentra autenticado
+
+A partir de ese momento las llamadas a Unsplash quedarán autenticadas con el token de acceso
 
 #### Docker
 
 Para poder hacer uso de la API hay que ejecutar:
 
 > docker pull skeet15/collections-api:latest
+
 > docker run -p 8080:8080 skeet15/collections-api:latest
 
 --- 

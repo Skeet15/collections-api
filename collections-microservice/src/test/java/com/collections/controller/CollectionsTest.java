@@ -1,6 +1,7 @@
 package com.collections.controller;
 
-import com.collections.delivery.CollectionsController;
+import com.collections.gateway.dto.CollectionsResponseDto;
+import com.collections.gateway.services.CollectionConverter;
 import com.collections.gateway.services.unsplash.impl.UnsplashServiceImpl;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,8 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.collections.controller.UnsplashExampleResponses.GET_COLLECTIONS_TEST_CASE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,66 +32,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         locations = "classpath:application.properties")
 public class CollectionsTest {
 
-    @Autowired
-    private CollectionsController controller;
 
-    @MockBean
-    private UnsplashServiceImpl unsplashServiceImpl;
+  @MockBean
+  private UnsplashServiceImpl unsplashServiceImpl;
 
-    @Autowired
-    private MockMvc mvc;
+  @Autowired
+  private CollectionConverter collectionConverter;
 
-    private static JSONObject getFirstItemDataFromResponse (MvcResult result) throws UnsupportedEncodingException, JSONException {
-        return new JSONObject(new JSONArray (new JSONObject(result.getResponse().getContentAsString()).get("data").toString()).get(0).toString());
-    }
+  @Autowired
+  private MockMvc mvc;
 
-    @Test
-    public void whenGetEmptyResponse_thenStatus200WithEmptyResponse_collectionsAll() throws Exception {
-        Mockito.doReturn("[]").when(unsplashServiceImpl).getCollections();
-        MvcResult result = mvc.perform(get("/collections/all?filter=id 1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        JSONAssert.assertEquals(
-                new JSONArray(new JSONObject(result.getResponse().getContentAsString()).get("data").toString()), new JSONArray("[]"),
-                JSONCompareMode.STRICT);
-    }
+  private static JSONObject getFirstItemDataFromResponse(MvcResult result) throws UnsupportedEncodingException, JSONException {
+    return new JSONObject(new JSONArray(new JSONObject(result.getResponse().getContentAsString()).get("data").toString()).get(0).toString());
+  }
 
-    @Test
-    public void whenGetCollections_thenStatus200WithResponse_collectionsAll() throws Exception {
-        Mockito.doReturn(UnsplashExampleResponses.GET_COLLECTIONS_TEST_CASE).when(unsplashServiceImpl).getCollections();
-        MvcResult result = mvc.perform(get("/collections/all?filter=id 1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        JSONAssert.assertEquals(
-                new JSONObject("{\"id\":\"8961198\",\"title\":\"Patterns\",\"description\":null,\"cover_photo_id\":\"VfhCCVr5tgg\"}"),
-                getFirstItemDataFromResponse(result), JSONCompareMode.STRICT);
-    }
+  @Test
+  public void whenGetEmptyResponse_thenStatus200WithEmptyResponse_collectionsAll() throws Exception {
+    Mockito.doReturn(CollectionsResponseDto.builder()
+            .data(new ArrayList<>())
+            .build()).when(unsplashServiceImpl).getCollections();
+    MvcResult result = mvc.perform(get("/collections/all?filter=1")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()).andReturn();
+    JSONAssert.assertEquals(
+            new JSONArray(new JSONObject(result.getResponse().getContentAsString()).get("data").toString()), new JSONArray("[]"),
+            JSONCompareMode.STRICT);
+  }
 
+  @Test
+  public void whenGetCollections_thenStatus200WithResponse_collectionsAll() throws Exception {
+    Mockito.doReturn(collectionConverter.apply(GET_COLLECTIONS_TEST_CASE)).when(unsplashServiceImpl).getCollections();
+    MvcResult result = mvc.perform(get("/collections/all?filter=1")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk()).andReturn();
+    JSONAssert.assertEquals(
+            new JSONObject("{\"id\":\"8961198\",\"title\":\"Patterns\",\"description\":null,\"cover_photo_id\":\"VfhCCVr5tgg\"}"),
+            getFirstItemDataFromResponse(result), JSONCompareMode.STRICT);
+  }
 
-    @Test
-    public void whenGetEmptyResponse_thenStatus200WithEmptyResponse_collections() throws Exception {
-        Mockito.doReturn("[]").when(unsplashServiceImpl).getCollections();
-        MvcResult result = mvc.perform(get("/collections?id=1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        JSONAssert.assertEquals(
-                new JSONArray(new JSONObject(result.getResponse().getContentAsString()).get("data").toString()), new JSONArray("[]"),
-                JSONCompareMode.STRICT);
-    }
-
-    @Test
-    public void whenGetCollections_thenStatus200WithResponse_collections() throws Exception {
-        Mockito.doReturn(UnsplashExampleResponses.GET_COLLECTIONS_TEST_CASE).when(unsplashServiceImpl).getCollections();
-        MvcResult result = mvc.perform(get("/collections?id=1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-        JSONAssert.assertEquals(
-                new JSONObject("{\"id\":\"8961198\",\"title\":\"Patterns\",\"description\":null,\"cover_photo_id\":\"VfhCCVr5tgg\"}"),
-                getFirstItemDataFromResponse(result), JSONCompareMode.LENIENT);
-    }
-
-    @Test
-    public void contextLoads() throws Exception {
-        assertThat(controller).isNotNull();
-    }
 }
