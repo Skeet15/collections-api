@@ -1,83 +1,58 @@
 package com.collections.gateway.services.impl;
 
-import com.collections.delivery.impl.CollectionsControllerImpl;
-import com.collections.gateway.dto.CollectionDTO;
-import com.collections.gateway.dto.CollectionsResponseDTO;
+import com.collections.gateway.dto.CollectionDto;
+import com.collections.gateway.dto.CollectionsResponseDto;
 import com.collections.gateway.services.CollectionsFilterService;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
 
 @Service
 public class CollectionsFilterServiceImpl implements CollectionsFilterService {
 
-    private static final Logger logger = LoggerFactory.getLogger(CollectionsFilterServiceImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(CollectionsFilterServiceImpl.class);
 
-    @Override
-    public CollectionsResponseDTO filter(CollectionsResponseDTO collections, String filter) {
-        logger.info("Filtering collections: {}", collections);
-        return
-                Objects.isNull(filter) ? collections :
-                        filterCollections(collections, filter);
-    }
+  @Override
+  public CollectionsResponseDto filter(CollectionsResponseDto collections, String filter) {
+    logger.info("Filtering collections: {}", collections);
+    // Si no hay filtro se devuelve todas las colecciones
+    // En otro caso se filtra por el parametro
+    return
+            Objects.isNull(filter) ? collections :
+                    filterCollections(collections, filter);
+  }
 
-    @Override
-    public CollectionsResponseDTO filter(CollectionsResponseDTO collections, String id, String title, String description, String cover_photo_id) {
-        return CollectionsResponseDTO.builder()
-                .collections(
-                        collections.getCollections()
-                                .stream()
-                                .filter(collection -> containsFilter(collection.getId(), id))
-                                .filter(collection -> containsFilter(collection.getTitle(), title))
-                                .filter(collection -> containsFilter(collection.getDescription(), description))
-                                .filter(collection -> containsFilter(collection.getCoverPhotoId(), cover_photo_id))
-                                .collect(Collectors.toList())
-                ).build();
-    }
-
-    private boolean containsFilter(String value, String filter) {
-        if (Objects.isNull(filter)) {
-            return true;
-        }
-
-        if (filter.isEmpty()) {
-            return false;
-        }
-        return value.toLowerCase().contains(filter.toLowerCase());
-
-    }
-
-    private CollectionsResponseDTO filterCollections(CollectionsResponseDTO collections, String filter) {
-        CollectionsResponseDTO collectionsResponseDTO = CollectionsResponseDTO.builder()
-                .collections(
-                    collections.getCollections()
+  private CollectionsResponseDto filterCollections(CollectionsResponseDto collections, String filter) {
+    // Dado el DTO de colecciones llamamos al método que se encargar de filtrar las colecciones
+    CollectionsResponseDto collectionsResponseDto = CollectionsResponseDto.builder()
+            .data(
+                    Optional.ofNullable(collections.getData())
+                            .orElse(Collections.emptyList())
                             .stream()
-                            .filter(collection -> containsFilter(collection, filter))
+                            .filter(collection -> collectionContainsFilter(collection, filter))
                             .collect(Collectors.toList())
-                ).build();
-        logger.info("Collections filtering result: {}", collectionsResponseDTO);
-        return collectionsResponseDTO;
-    }
 
-    private boolean containsFilter(CollectionDTO collection, String filter) {
-        boolean match = false;
-        if (!filter.isEmpty()) {
-            String[] filterArray = filter.split(" ");
-            String field = filterArray[0];
-            String value = filterArray[1];
-            String fieldToMatch = "";
-            switch (field) {
-                case "id": fieldToMatch = collection.getId(); break;
-                case "title": fieldToMatch = collection.getTitle(); break;
-                case "description": fieldToMatch = collection.getDescription(); break;
-                case "cover_photo_id": fieldToMatch = collection.getCoverPhotoId(); break;
-            }
-            match = fieldToMatch.toLowerCase().contains(value.toLowerCase());
-        }
-        return match;
-    }
+            ).build();
+    logger.info("Collections filtering result: {}", collectionsResponseDto);
+    return collectionsResponseDto;
+  }
+
+
+  private boolean collectionContainsFilter(CollectionDto collection, String filter) {
+    // Este método ejecute un OR lógico entre los campos por los que se quiere filtrar
+    return valueContainsFilter(collection.getId(), filter.toLowerCase())
+            || valueContainsFilter(collection.getTitle(), filter.toLowerCase())
+            || valueContainsFilter(collection.getDescription(), filter.toLowerCase())
+            || valueContainsFilter(collection.getCoverPhotoId(), filter.toLowerCase());
+  }
+
+  private boolean valueContainsFilter(String value, String filter) {
+    return Objects.nonNull(value) && value.toLowerCase().contains(filter.toLowerCase());
+  }
 }
