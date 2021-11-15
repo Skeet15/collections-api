@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.collections</groupId>
     <artifactId>collections-microservice</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>collections-microservice</name>
     <description>Collections Microservice</description>
     <properties>

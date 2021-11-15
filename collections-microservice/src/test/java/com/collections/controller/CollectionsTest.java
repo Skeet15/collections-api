@@ -51,7 +51,7 @@ public class CollectionsTest {
     Mockito.doReturn(CollectionsResponseDto.builder()
             .data(new ArrayList<>())
             .build()).when(unsplashServiceImpl).getCollections();
-    MvcResult result = mvc.perform(get("/collections/all?filter=1")
+    MvcResult result = mvc.perform(get("/collection/all?filter=1")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk()).andReturn();
     JSONAssert.assertEquals(
@@ -62,7 +62,7 @@ public class CollectionsTest {
   @Test
   public void whenGetCollections_thenStatus200WithResponse_collectionsAll() throws Exception {
     Mockito.doReturn(collectionConverter.apply(GET_COLLECTIONS_TEST_CASE)).when(unsplashServiceImpl).getCollections();
-    MvcResult result = mvc.perform(get("/collections/all?filter=1")
+    MvcResult result = mvc.perform(get("/collection/all?filter=1")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk()).andReturn();
     JSONAssert.assertEquals(

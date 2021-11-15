@@ -31,7 +31,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     // Configuracion de Spring Security para hacer uso del login OAuth
     http
             .authorizeRequests()
-            .antMatchers("/collections/**").permitAll()
+            .antMatchers("/collection/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2Login();
