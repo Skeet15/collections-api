@@ -4,7 +4,7 @@ Microservicio realizado con Spring Boot
 
 En el enunciado de la prueba se pedia implementar la siguiente llamada:
 
-> GET /v1/collection/all
+> GET /collection/all
 
 Parámetros:
 
