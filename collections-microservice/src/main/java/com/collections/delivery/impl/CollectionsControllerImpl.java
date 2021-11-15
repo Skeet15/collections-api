@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/collections")
+@RequestMapping("/collection")
 @RequiredArgsConstructor
 @Api(value = "Collections controller")
 public class CollectionsControllerImpl implements CollectionsController {
