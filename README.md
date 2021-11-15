@@ -18,9 +18,13 @@ Para ello, es necesario hacer login accediendo al siguiente path:
 
 > http://localhost:8080/login
 
+Para posteriormente hacer click en el botón "unsplash"
+
 Una vez hecho login, la API devolverá un JSON informando que el usuario se encuentra autenticado
 
 A partir de ese momento las llamadas a Unsplash quedarán autenticadas con el token de acceso
+
+En caso de estar previamente autenticado, bastará con acceder al login y hacer click en el boton "unsplash"
 
 #### Docker
 
